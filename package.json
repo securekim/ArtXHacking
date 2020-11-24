@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "express": "^4.17.1",
-    "msfrpc-client-node": "^0.2.2"
+    "msfrpc-client-node": "^0.2.2",
+    "socket.io": "^3.0.3"
   }
 }
